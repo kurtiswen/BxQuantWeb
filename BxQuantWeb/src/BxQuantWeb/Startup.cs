@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using BxQuantWeb.Data;
 using BxQuantWeb.Models;
 using BxQuantWeb.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BxQuantWeb
 {
@@ -43,11 +44,24 @@ namespace BxQuantWeb
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>(config => {
+                config.SignIn.RequireConfirmedEmail = true;
+            })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddMvc();
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequiredLength = 6;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+            });
+
+            services.AddMvc(options => {
+                options.Filters.Add(new RequireHttpsAttribute());
+            });
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
@@ -83,6 +97,7 @@ namespace BxQuantWeb
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            
         }
     }
 }
