@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using BxQuantWeb.Models;
 using BxQuantWeb.Models.ManageViewModels;
 using BxQuantWeb.Services;
+using static BxQuantWeb.Data.ApplicationDbContext;
+using BxQuantWeb.Data;
 
 namespace BxQuantWeb.Controllers
 {
@@ -20,19 +22,23 @@ namespace BxQuantWeb.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
+        private readonly ApplicationDbContext _context;
 
         public ManageController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IEmailSender emailSender,
         ISmsSender smsSender,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory,
+        ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<ManageController>();
+            _context = context;
+            
         }
 
         //
@@ -111,6 +117,58 @@ namespace BxQuantWeb.Controllers
             var code = await _userManager.GenerateChangePhoneNumberTokenAsync(user, model.PhoneNumber);
             await _smsSender.SendSmsAsync(model.PhoneNumber, "Your security code is: " + code);
             return RedirectToAction(nameof(VerifyPhoneNumber), new { PhoneNumber = model.PhoneNumber });
+        }
+
+        public async Task<IActionResult> EditUserProfile()
+        {
+            var user = await GetCurrentUserAsync();
+            if (user == null)
+            {
+                return View("Error");
+            }
+
+            UserProfile profile = _context.UserProfiles.FirstOrDefault(x => x.UserId == user.Id);
+            if (profile == null)
+            {
+                profile = new UserProfile();
+                profile.UserId = user.Id;
+                _context.UserProfiles.Add(profile);
+                await _context.SaveChangesAsync();
+            }
+
+            var model = new EditUserProfileViewModel();
+            model.Location = profile.Location;
+            model.Gender = profile.Gender;
+            model.DateOfBirth = profile.DateOfBirth;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditUserProfile(EditUserProfileViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await GetCurrentUserAsync();
+            if(user == null)
+            {
+                return View("Error");
+            }
+
+            UserProfile profile = _context.UserProfiles.FirstOrDefault(x => x.UserId == user.Id);
+            if (profile!=null)
+            {
+                profile.Location = model.Location;
+                profile.Gender = model.Gender;
+                _context.SaveChanges();
+
+            }
+
+            return View();
+           
         }
 
         //

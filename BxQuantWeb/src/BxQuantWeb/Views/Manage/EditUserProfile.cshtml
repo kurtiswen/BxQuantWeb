@@ -1,0 +1,70 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model EditUserProfileViewModel
+@{
+    ViewData["Title"] = "Edit your user profile";
+}
+<!-- Bootstrap time Picker -->
+<link rel="stylesheet" href="~/AdminLTE/plugins/timepicker/bootstrap-timepicker.min.css">
+<!-- bootstrap datepicker -->
+<script src="~/AdminLTE/plugins/datepicker/bootstrap-datepicker.js"></script>
+ 
+<h2>@ViewData["Title"].</h2>
+<form asp-controller="Manage" asp-action="EditUserProfile" method="post" class="form-horizontal">
+    <h4>Edit User Profile.</h4>
+    <hr />
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Location" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <input asp-for="Location" class="form-control" />
+            <span asp-validation-for="Location" class="text-danger"></span>
+        </div>
+    </div>
+    <!-- radio -->
+    
+    <div class="form-group">
+        <label asp-for="Gender" class="col-md-2 control-label"></label>
+        <div class="col-md-10">
+            <select asp-for="Gender" class="form-control">
+                <option>Male</option>
+                <option>Female</option>               
+            </select>
+            <span asp-validation-for="Gender" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label>Date:</label>
+            <div class="input-group date">
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar"></i>
+                </div>
+                <input type="text" class="form-control pull-right" id="datepicker">
+            </div>
+            <!-- /.input group -->
+        </div>
+        
+        
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" class="btn btn-default">Save User Profile</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
+
+<script>
+    $(function () {
+        //Date picker
+        $('#datepicker').datepicker({
+            autoclose: true
+        });
+
+    })
+  
+</script>

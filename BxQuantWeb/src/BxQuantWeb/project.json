@@ -24,6 +24,7 @@
       "version": "1.0.1",
       "type": "build"
     },
+    "Microsoft.EntityFrameworkCore.Tools.DotNet": "1.0.0-preview3-final",
     "Microsoft.EntityFrameworkCore.Tools": {
       "version": "1.0.0-preview2-final",
       "type": "build"
